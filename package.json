@@ -1,0 +1,60 @@
+{
+  "name": "slyder",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "A headless slider implementation for React",
+  "source": "./src/slyder.ts",
+  "main": "./dist/slyder.cjs",
+  "directories": {
+    "test": "tests"
+  },
+  "exports": {
+    "require": "./dist/slyder.cjs",
+    "default": "./dist/slyder.modern.js"
+  },
+  "module": "./dist/slyder.module.js",
+  "unpkg": "./dist/slyder.umd.js",
+  "scripts": {
+    "build": "microbundle",
+    "dev": "microbundle watch",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rb1193/slyder.git"
+  },
+  "keywords": [
+    "headless",
+    "React",
+    "slider"
+  ],
+  "author": "Ryan Brown",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rb1193/slyder/issues"
+  },
+  "homepage": "https://github.com/rb1193/slyder#readme",
+  "devDependencies": {
+    "@jest/globals": "^27.4.6",
+    "@jest/types": "^27.4.2",
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.1.2",
+    "@types/jest": "^27.4.0",
+    "@types/react": "^17.0.38",
+    "@typescript-eslint/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/parser": "^5.10.0",
+    "eslint": "^8.7.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jest": "^25.7.0",
+    "eslint-plugin-jest-dom": "^4.0.1",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "jest": "^27.4.7",
+    "microbundle": "^0.14.2",
+    "react": "^17.0.2",
+    "ts-jest": "^27.1.3",
+    "typescript": "^4.5.5"
+  }
+}

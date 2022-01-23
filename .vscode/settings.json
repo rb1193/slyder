@@ -1,0 +1,4 @@
+{
+    "editor.tabSize": 2,
+    "eslint.lintTask.options": ". --ext .js --ext .ts"
+}

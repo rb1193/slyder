@@ -1,0 +1,40 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "ignorePatterns": ["setup.jest.ts"],
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:jest/recommended",
+    "plugin:jest-dom/recommended",
+    "airbnb"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "jest",
+    "jest-dom"
+  ],
+  "rules": {
+    "import/prefer-default-export": "off",
+    "import/extensions": "off",
+    "react/function-component-definition": "off",
+    "react/jsx-filename-extension": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
+  }
+}
