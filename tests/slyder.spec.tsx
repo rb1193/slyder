@@ -3,13 +3,32 @@ import { render, screen } from '@testing-library/react';
 import { useSlyder } from '../src/slyder';
 
 const TestSlyder = () => {
-  const result = useSlyder();
-  return <p>{result}</p>;
+  const { getSlideProps } = useSlyder();
+
+  const slides = [
+    {
+      key: 'One',
+      text: 'One',
+    },
+    {
+      key: 'Two',
+      text: 'Two',
+    },
+  ];
+
+  return (
+    <ul>
+      {slides.map(({ key, text }, index) => (
+        <li key={key} {...getSlideProps({ index })}>{text}</li>
+      ))}
+    </ul>
+  );
 };
 
 describe('The useSlyder hook', () => {
-  it('returns "hello world"', () => {
+  it('hides invisble slides from screen readers', () => {
     render(<TestSlyder />);
-    expect(screen.getByText('hello world')).toBeVisible();
+    expect(screen.getByText('One')).toHaveAttribute('aria-hidden', 'false');
+    expect(screen.getByText('Two')).toHaveAttribute('aria-hidden', 'true');
   });
 });

@@ -8,6 +8,7 @@
     "plugin:react/recommended",
     "plugin:jest/recommended",
     "plugin:jest-dom/recommended",
+    "plugin:storybook/recommended",
     "airbnb"
   ],
   "parser": "@typescript-eslint/parser",
@@ -22,13 +23,16 @@
     "react",
     "@typescript-eslint",
     "jest",
-    "jest-dom"
+    "jest-dom",
+    "storybook"
   ],
   "rules": {
     "import/prefer-default-export": "off",
     "import/extensions": "off",
+    "import/no-extraneous-dependencies": "off",
     "react/function-component-definition": "off",
-    "react/jsx-filename-extension": "off"
+    "react/jsx-filename-extension": "off",
+    "react/jsx-props-no-spreading": "off"
   },
   "settings": {
     "import/resolver": {
