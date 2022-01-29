@@ -3,7 +3,9 @@ import React from 'react';
 import { useSlyder } from './slyder';
 
 const TestSlyder = () => {
-  const { getSlideProps } = useSlyder();
+  const {
+    getContainerProps, getTrackProps, getSlideProps, getPrevButtonProps, getNextButtonProps,
+  } = useSlyder();
 
   const slides = [
     {
@@ -17,11 +19,15 @@ const TestSlyder = () => {
   ];
 
   return (
-    <ul>
-      {slides.map(({ key, text }, index) => (
-        <li key={key} {...getSlideProps({ index })}>{text}</li>
-      ))}
-    </ul>
+    <div {...getContainerProps({})}>
+      <ul {...getTrackProps({})}>
+        {slides.map(({ key, text }, index) => (
+          <li key={key} {...getSlideProps({ index })}>{text}</li>
+        ))}
+      </ul>
+      <button {...getPrevButtonProps({})}>{'<'}</button>
+      <button {...getNextButtonProps({})}>{'>'}</button>
+    </div>
   );
 };
 

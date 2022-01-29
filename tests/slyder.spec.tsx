@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { useSlyder } from '../src/slyder';
 
 const TestSlyder = () => {
-  const { getSlideProps } = useSlyder();
+  const { getContainerProps, getSlideProps } = useSlyder();
 
   const slides = [
     {
@@ -17,7 +17,7 @@ const TestSlyder = () => {
   ];
 
   return (
-    <ul>
+    <ul {...getContainerProps()}>
       {slides.map(({ key, text }, index) => (
         <li key={key} {...getSlideProps({ index })}>{text}</li>
       ))}
