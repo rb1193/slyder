@@ -24,7 +24,7 @@ export const useSlyder = () => {
 
   useLayoutEffect(() => {
     setContainerWidth(containerRef.current?.clientWidth ?? 0);
-  });
+  }, []);
 
   return {
     getContainerProps: ({ ref, ...props }: HTMLProps<HTMLElement>) => ({
@@ -32,6 +32,7 @@ export const useSlyder = () => {
       ref: mergeRefs(containerRef, ref),
       style: {
         overflow: 'hidden',
+        ...props.style,
       },
     }),
     getTrackProps: (props: HTMLProps<HTMLUListElement>) => {
@@ -43,6 +44,7 @@ export const useSlyder = () => {
           display: 'flex',
           transform: `translateX(-${translateXAmount}px)`,
           width: containerWidth * totalSlides,
+          ...props.style,
         },
       };
     },
@@ -68,6 +70,8 @@ export const useSlyder = () => {
       'aria-hidden': index !== visibleSlideIndex,
       style: {
         width: containerWidth,
+        visibility: index !== visibleSlideIndex ? 'hidden' : 'visible',
+        ...props.style,
       },
     }),
   };

@@ -11,18 +11,20 @@ const TestSlyder = () => {
     {
       key: 'One',
       text: 'One',
+      color: 'lightcyan',
     },
     {
       key: 'Two',
       text: 'Two',
+      color: 'lightcoral',
     },
   ];
 
   return (
     <div {...getContainerProps({})}>
-      <ul {...getTrackProps({})}>
-        {slides.map(({ key, text }, index) => (
-          <li key={key} {...getSlideProps({ index })}>{text}</li>
+      <ul {...getTrackProps({ style: { paddingLeft: 0, listStyle: 'none' } })}>
+        {slides.map(({ key, text, color }, index) => (
+          <li key={key} {...getSlideProps({ index, style: { background: color } })}>{text}</li>
         ))}
       </ul>
       <button {...getPrevButtonProps({})}>{'<'}</button>

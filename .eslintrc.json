@@ -3,13 +3,13 @@
     "browser": true,
     "es2021": true
   },
-  "ignorePatterns": ["setup.jest.ts"],
   "extends": [
     "plugin:react/recommended",
-    "plugin:jest/recommended",
-    "plugin:jest-dom/recommended",
     "plugin:storybook/recommended",
     "airbnb"
+  ],
+  "ignorePatterns": [
+    "cypress/**/*.js"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -22,8 +22,6 @@
   "plugins": [
     "react",
     "@typescript-eslint",
-    "jest",
-    "jest-dom",
     "storybook"
   ],
   "rules": {
