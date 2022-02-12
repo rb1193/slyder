@@ -1,44 +1,23 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
-import React from 'react';
-import { useSlyder } from './slyder';
+import React, { ReactElement } from 'react';
+import BasicSlyder from './BasicSlyder';
+import FadeSlyder from './FadeSlyder';
 
-const TestSlyder = () => {
-  const {
-    getContainerProps, getTrackProps, getSlideProps, getPrevButtonProps, getNextButtonProps,
-  } = useSlyder();
-
-  const slides = [
-    {
-      key: 'One',
-      text: 'One',
-      color: 'lightcyan',
-    },
-    {
-      key: 'Two',
-      text: 'Two',
-      color: 'lightcoral',
-    },
-  ];
-
-  return (
-    <div {...getContainerProps({})}>
-      <ul {...getTrackProps({ style: { paddingLeft: 0, listStyle: 'none' } })}>
-        {slides.map(({ key, text, color }, index) => (
-          <li key={key} {...getSlideProps({ index, style: { background: color } })}>{text}</li>
-        ))}
-      </ul>
-      <button {...getPrevButtonProps({})}>{'<'}</button>
-      <button {...getNextButtonProps({})}>{'>'}</button>
-    </div>
-  );
-};
+const SlyderContainer = ({ children }: { children: ReactElement }) => <div>{children}</div>;
 
 export default {
-  title: 'Basic',
-  component: TestSlyder,
-} as ComponentMeta<typeof TestSlyder>;
+  title: 'Slyder',
+  component: SlyderContainer,
+} as ComponentMeta<typeof SlyderContainer>;
 
-const Template: ComponentStory<typeof TestSlyder> = () => <TestSlyder />;
+// eslint-disable-next-line max-len
+const Template: ComponentStory<typeof SlyderContainer> = (args: { children: ReactElement }) => {
+  const { children } = args;
+  return <SlyderContainer>{children}</SlyderContainer>;
+};
 
-export const Basic = Template.bind({});
-Basic.args = {};
+export const Slide = Template.bind({});
+Slide.args = { children: <BasicSlyder /> };
+
+export const Fade = Template.bind({});
+Fade.args = { children: <FadeSlyder /> };

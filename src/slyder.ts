@@ -27,6 +27,10 @@ export const useSlyder = () => {
   }, []);
 
   return {
+    getSlyder: () => ({
+      trackPosition: -visibleSlideIndex * containerWidth,
+      visibleSlideIndex,
+    }),
     getContainerProps: ({ ref, ...props }: HTMLProps<HTMLElement>) => ({
       ...props,
       ref: mergeRefs(containerRef, ref),
@@ -35,19 +39,15 @@ export const useSlyder = () => {
         ...props.style,
       },
     }),
-    getTrackProps: (props: HTMLProps<HTMLUListElement>) => {
-      const translateXAmount = (visibleSlideIndex * containerWidth).toString(10);
-      return {
-        ...props,
-        ref: trackRef,
-        style: {
-          display: 'flex',
-          transform: `translateX(-${translateXAmount}px)`,
-          width: containerWidth * totalSlides,
-          ...props.style,
-        },
-      };
-    },
+    getTrackProps: <ExtraProps>(props: HTMLProps<HTMLUListElement> & ExtraProps) => ({
+      ...props,
+      ref: trackRef,
+      style: {
+        display: 'flex',
+        width: containerWidth * totalSlides,
+        ...props.style,
+      },
+    }),
     getPrevButtonProps: (props: HTMLProps<HTMLButtonElement>) => ({
       ...props,
       type: 'button' as 'button',
@@ -70,7 +70,6 @@ export const useSlyder = () => {
       'aria-hidden': index !== visibleSlideIndex,
       style: {
         width: containerWidth,
-        visibility: index !== visibleSlideIndex ? 'hidden' : 'visible',
         ...props.style,
       },
     }),
