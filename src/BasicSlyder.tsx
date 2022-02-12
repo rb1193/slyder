@@ -5,7 +5,9 @@ import { useSlyder } from './slyder';
 const BasicSlyder = () => {
   const {
     getSlyder,
-    getContainerProps, getTrackProps, getSlideProps, getPrevButtonProps, getNextButtonProps,
+    getControlProps,
+    getContainerProps,
+    getTrackProps, getSlideProps, getPrevButtonProps, getNextButtonProps,
   } = useSlyder();
 
   const slides = [
@@ -18,6 +20,11 @@ const BasicSlyder = () => {
       key: 'Two',
       text: 'Two',
       color: 'lightcoral',
+    },
+    {
+      key: 'Three',
+      text: 'Three',
+      color: 'lightgreen',
     },
   ];
 
@@ -43,8 +50,17 @@ const BasicSlyder = () => {
           </li>
         ))}
       </motion.ul>
-      <button {...getPrevButtonProps({})}>{'<'}</button>
-      <button {...getNextButtonProps({})}>{'>'}</button>
+      <div>
+        <button {...getPrevButtonProps({})}>{'<'}</button>
+        <button {...getNextButtonProps({})}>{'>'}</button>
+      </div>
+      <ol style={{ 'list-style': 'none' }}>
+        {slides.map(({ key }, index) => (
+          <li key={key} style={{ display: 'inline-block' }}>
+            <button {...getControlProps({ index })}>{index + 1}</button>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 };

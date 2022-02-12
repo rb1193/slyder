@@ -73,5 +73,12 @@ export const useSlyder = () => {
         ...props.style,
       },
     }),
+    getControlProps: ({ index, ...props }: { index: number } & HTMLProps<HTMLButtonElement>) => ({
+      type: 'button' as 'button',
+      'aria-label': `Go to slide ${index} of ${totalSlides}`,
+      disabled: index === visibleSlideIndex,
+      onClick: () => setVisibleSlideIndex(index),
+      ...props,
+    }),
   };
 };
