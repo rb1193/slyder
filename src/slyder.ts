@@ -1,6 +1,7 @@
 import {
-  HTMLProps, useLayoutEffect, useRef, useState,
+  HTMLProps, useRef, useState,
 } from 'react';
+import { useSetContainerWidthEffect } from './dom-effects';
 
 const mergeRefs = <T>(...refs: any[]) => (node: T) => {
   refs.forEach((ref) => {
@@ -22,16 +23,14 @@ export const useSlyder = () => {
 
   const totalSlides = trackRef.current?.children.length ?? 1;
 
-  useLayoutEffect(() => {
-    setContainerWidth(containerRef.current?.clientWidth ?? 0);
-  }, []);
+  useSetContainerWidthEffect(containerRef, setContainerWidth);
 
   return {
     getSlyder: () => ({
       trackPosition: -visibleSlideIndex * containerWidth,
       visibleSlideIndex,
     }),
-    getContainerProps: ({ ref, ...props }: HTMLProps<HTMLElement>) => ({
+    getContainerProps: <ExtraProps>({ ref, ...props }: HTMLProps<HTMLElement> & ExtraProps) => ({
       ...props,
       ref: mergeRefs(containerRef, ref),
       style: {
@@ -39,16 +38,17 @@ export const useSlyder = () => {
         ...props.style,
       },
     }),
-    getTrackProps: <ExtraProps>(props: HTMLProps<HTMLUListElement> & ExtraProps) => ({
+    getTrackProps: <ExtraProps>({ ref, ...props }: HTMLProps<HTMLUListElement> & ExtraProps) => ({
       ...props,
-      ref: trackRef,
+      ref: mergeRefs(trackRef, ref),
       style: {
         display: 'flex',
         width: containerWidth * totalSlides,
+        transform: `translateX(${-containerWidth * visibleSlideIndex}px)`,
         ...props.style,
       },
     }),
-    getPrevButtonProps: (props: HTMLProps<HTMLButtonElement>) => ({
+    getPrevButtonProps: <ExtraProps>(props: HTMLProps<HTMLButtonElement> & ExtraProps) => ({
       ...props,
       type: 'button' as 'button',
       'aria-label': 'previous',
@@ -56,7 +56,7 @@ export const useSlyder = () => {
         setVisibleSlideIndex((value) => (value > 0 ? value - 1 : 0));
       },
     }),
-    getNextButtonProps: (props: HTMLProps<HTMLButtonElement>) => ({
+    getNextButtonProps: <ExtraProps>(props: HTMLProps<HTMLButtonElement> & ExtraProps) => ({
       ...props,
       type: 'button' as 'button',
       'aria-label': 'next',
@@ -65,7 +65,9 @@ export const useSlyder = () => {
           ? value + 1 : (totalSlides - 1)));
       },
     }),
-    getSlideProps: ({ index, ...props }: { index: number } & HTMLProps<HTMLLIElement>) => ({
+    getSlideProps: <ExtraProps>({ index, ...props }: {
+      index: number
+    } & HTMLProps<HTMLLIElement> & ExtraProps) => ({
       ...props,
       'aria-hidden': index !== visibleSlideIndex,
       style: {
@@ -75,7 +77,7 @@ export const useSlyder = () => {
     }),
     getControlProps: ({ index, ...props }: { index: number } & HTMLProps<HTMLButtonElement>) => ({
       type: 'button' as 'button',
-      'aria-label': `Go to slide ${index} of ${totalSlides}`,
+      'aria-label': `Go to slide ${index + 1} of ${totalSlides}`,
       disabled: index === visibleSlideIndex,
       onClick: () => setVisibleSlideIndex(index),
       ...props,
