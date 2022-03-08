@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, ComponentPropsWithoutRef } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSetContainerWidthEffect } from './dom-effects';
 import { useSlyder } from './slyder';
@@ -185,5 +185,19 @@ describe('Slyder', () => {
 
     expect(screen.getByRole('button', { name: 'Go to slide 1 of 3' })).not.toBeDisabled();
     expect(screen.getByRole('button', { name: 'Go to slide 3 of 3' })).toBeDisabled();
+  });
+
+  it('can be navigated by swiping using a pointer', () => {
+    render(<Slyder />);
+
+    fireEvent.pointerDown(screen.getByText('One'));
+
+    fireEvent.pointerMove(screen.getByText('One'), {
+      pageX: containerWidth / 2 + 1,
+    });
+
+    fireEvent.pointerUp(screen.getByText('One'));
+
+    expectTrackToHaveMoved(-containerWidth);
   });
 });

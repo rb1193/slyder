@@ -1,5 +1,6 @@
+import { type } from '@testing-library/user-event/dist/type';
 import {
-  HTMLProps, useRef, useState,
+  HTMLProps, useEffect, useReducer, useRef, useState,
 } from 'react';
 import { useSetContainerWidthEffect } from './dom-effects';
 
@@ -14,20 +15,161 @@ const mergeRefs = <T>(...refs: any[]) => (node: T) => {
   });
 };
 
+type SlyderState = {
+  swipingFrom?: number,
+  swipeDistance: number,
+  visibleSlideIndex: number,
+}
+
+enum SlyderActionType {
+  GOTO = 'goto',
+  NEXT = 'next',
+  PREVIOUS = 'previous',
+  POINTER_DOWN = 'pointerdown',
+  POINTER_MOVE = 'pointermove',
+  POINTER_UP = 'pointerup',
+  POINTER_CANCEL = 'pointercancel',
+}
+
+type PointerDownAction = {
+  type: SlyderActionType.POINTER_DOWN,
+  payload: { x: number },
+}
+
+type PointerMoveAction = {
+  type: SlyderActionType.POINTER_MOVE,
+  payload: { x: number },
+}
+
+type PointerUpAction = {
+  type: SlyderActionType.POINTER_UP,
+  payload: { x: number },
+}
+
+type NextAction = {
+  type: SlyderActionType.NEXT,
+}
+
+type PreviousAction = {
+  type: SlyderActionType.PREVIOUS, 
+}
+
+type GoToAction = {
+  type: SlyderActionType.GOTO,
+  payload: { index: number },
+}
+
+type SlyderAction = NextAction | PreviousAction | GoToAction | PointerDownAction | PointerMoveAction | PointerUpAction;
+
+enum SwipeDirection {
+  NEXT = 'next',
+  PREV = 'prev',
+}
+
 export const useSlyder = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLUListElement>(null);
 
-  const [visibleSlideIndex, setVisibleSlideIndex] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
 
   const totalSlides = trackRef.current?.children.length ?? 1;
 
+  const [{ swipingFrom, swipeDistance, visibleSlideIndex }, dispatch] = useReducer((state: SlyderState, action: SlyderAction) => {
+    const getSafeVisibleSlideIndex = (newSlideIndex: number) => {
+      if (newSlideIndex >= totalSlides) return state.visibleSlideIndex;
+      if (newSlideIndex < 0) return state.visibleSlideIndex;
+      return newSlideIndex;
+    }
+
+    switch (action.type) {
+      case SlyderActionType.NEXT:
+        return {
+          ...state,
+          visibleSlideIndex: getSafeVisibleSlideIndex(state.visibleSlideIndex + 1),
+        }
+      case SlyderActionType.PREVIOUS:
+        return {
+          ...state,
+          visibleSlideIndex: getSafeVisibleSlideIndex(state.visibleSlideIndex - 1),
+        };
+      case SlyderActionType.GOTO:
+        return {
+          ...state,
+          visibleSlideIndex: getSafeVisibleSlideIndex(action.payload.index),
+        }
+      case SlyderActionType.POINTER_DOWN:
+        return {
+          ...state,
+          swipingFrom: action.payload.x,
+        };
+      case SlyderActionType.POINTER_MOVE:
+        if (state.swipingFrom === undefined) return state;
+        return {
+          ...state,
+          swipeDistance: action.payload.x - state.swipingFrom,
+        };
+      case SlyderActionType.POINTER_UP:
+        if (state.swipingFrom === undefined) return state;
+        const hasSwipedAcrossThreshold = Math.abs(swipeDistance) > containerWidth / 2;
+
+        if (!hasSwipedAcrossThreshold) {
+          return {
+            swipeDistance: 0,
+            visibleSlideIndex: state.visibleSlideIndex,
+          }
+        }
+
+        const swipeDirection = state.swipeDistance >= 0 ? SwipeDirection.NEXT : SwipeDirection.PREV;
+        const newSlideIndexOffset = swipeDirection === SwipeDirection.NEXT ? 1 : -1;
+        
+        return {
+          swipeDistance: 0,
+          visibleSlideIndex: getSafeVisibleSlideIndex(state.visibleSlideIndex + newSlideIndexOffset),
+        };
+      default:
+        throw new Error(`Unexpected swipe action type`);
+    }
+  }, {
+    swipeDistance: 0,
+    visibleSlideIndex: 0,
+  });
+
+  const trackPosition = -containerWidth * visibleSlideIndex;
+
   useSetContainerWidthEffect(containerRef, setContainerWidth);
+
+  useEffect(() => {
+    if (!trackRef.current) return;
+    if (swipingFrom === undefined) return;
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!event.isPrimary) return;
+      dispatch({ type: SlyderActionType.POINTER_MOVE, payload: { x: event.pageX } });
+    };
+
+    const handlePointerUp = (event: PointerEvent) => {
+      if (!event.isPrimary) return;
+      dispatch({ type: SlyderActionType.POINTER_UP, payload: { x: event.pageX } });
+    };
+
+    trackRef.current.addEventListener('pointermove', handlePointerMove);
+    trackRef.current.addEventListener('pointerup', handlePointerUp);
+
+
+    return () => {
+      trackRef.current?.removeEventListener('pointermove', handlePointerMove);
+      trackRef.current?.removeEventListener('pointerup', handlePointerUp);
+    };
+  }, [swipingFrom]);
+
+  const handlePointerDown = (event: PointerEvent) => {
+    if (!event.isPrimary) return;
+    dispatch({ type: SlyderActionType.POINTER_DOWN, payload: { x: event.pageX } });
+  };
 
   return {
     getSlyder: () => ({
-      trackPosition: -visibleSlideIndex * containerWidth,
+      trackPosition,
       visibleSlideIndex,
     }),
     getContainerProps: <ExtraProps>({ ref, ...props }: HTMLProps<HTMLElement> & ExtraProps) => ({
@@ -40,11 +182,12 @@ export const useSlyder = () => {
     }),
     getTrackProps: <ExtraProps>({ ref, ...props }: HTMLProps<HTMLUListElement> & ExtraProps) => ({
       ...props,
+      onPointerDown: handlePointerDown,
       ref: mergeRefs(trackRef, ref),
       style: {
         display: 'flex',
         width: containerWidth * totalSlides,
-        transform: `translateX(${-containerWidth * visibleSlideIndex}px)`,
+        transform: `translateX(${trackPosition - swipeDistance}px)`,
         ...props.style,
       },
     }),
@@ -53,7 +196,7 @@ export const useSlyder = () => {
       type: 'button' as 'button',
       'aria-label': 'previous',
       onClick: () => {
-        setVisibleSlideIndex((value) => (value > 0 ? value - 1 : 0));
+        dispatch({ type: SlyderActionType.NEXT });
       },
     }),
     getNextButtonProps: <ExtraProps>(props: HTMLProps<HTMLButtonElement> & ExtraProps) => ({
@@ -61,8 +204,7 @@ export const useSlyder = () => {
       type: 'button' as 'button',
       'aria-label': 'next',
       onClick: () => {
-        setVisibleSlideIndex((value) => (value < (totalSlides - 1)
-          ? value + 1 : (totalSlides - 1)));
+        dispatch({ type: SlyderActionType.PREVIOUS })
       },
     }),
     getSlideProps: <ExtraProps>({ index, ...props }: {
@@ -79,7 +221,7 @@ export const useSlyder = () => {
       type: 'button' as 'button',
       'aria-label': `Go to slide ${index + 1} of ${totalSlides}`,
       disabled: index === visibleSlideIndex,
-      onClick: () => setVisibleSlideIndex(index),
+      onClick: () => dispatch({ type: SlyderActionType.GOTO, payload: { index } }),
       ...props,
     }),
   };
