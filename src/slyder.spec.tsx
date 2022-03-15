@@ -2,7 +2,7 @@ import React, { useLayoutEffect, ComponentPropsWithoutRef } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSetContainerWidthEffect } from './dom-effects';
-import { useSlyder } from './slyder';
+import { useSlyder, UseSlyderProps } from './slyder';
 
 jest.mock('./dom-effects');
 
@@ -16,7 +16,7 @@ describe('Slyder', () => {
     }, []);
   });
 
-  const Slyder = () => {
+  const Slyder = ({ config }: { config?: Partial<UseSlyderProps> }) => {
     const {
       getControlProps,
       getContainerProps,
@@ -24,7 +24,7 @@ describe('Slyder', () => {
       getSlideProps,
       getPrevButtonProps,
       getNextButtonProps,
-    } = useSlyder({ swipeThreshold: 0.5 });
+    } = useSlyder({ swipeThreshold: 0.5, ...config });
 
     const slides = [
       {
@@ -233,6 +233,14 @@ describe('Slyder', () => {
     expectTrackToHaveMoved(0);
   });
 
+  it('cannot be navigated by swiping using a pointer if the swipe threshold value is set to false', () => {
+    render(<Slyder config={{ swipeThreshold: false }}/>);
+
+    swipeLeft()
+
+    expectTrackToHaveMoved(0);
+  });
+
   it('partially moves the slide as the user begins to swipe', () => {
     render(<Slyder />);
 
@@ -249,7 +257,7 @@ describe('Slyder', () => {
   })
 
   it('does not complete slide navigation if the user does not swipe beyond the threshold', () => {
-    render(<Slyder />)
+    render(<Slyder config={{ swipeThreshold: 0.5 }} />)
 
     const track = screen.getByTestId('slyder-track')
 

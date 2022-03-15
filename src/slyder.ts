@@ -67,7 +67,7 @@ enum SwipeDirection {
 }
 
 export interface UseSlyderProps {
-  swipeThreshold?: number,
+  swipeThreshold: number|false,
 }
 
 export const useSlyder = ({ swipeThreshold }: UseSlyderProps) => {
@@ -114,7 +114,7 @@ export const useSlyder = ({ swipeThreshold }: UseSlyderProps) => {
         };
       case SlyderActionType.POINTER_UP:
         if (state.swipingFrom === undefined) return state;
-        const hasSwipedAcrossThreshold = Math.abs(state.swipeDistance) > containerWidth * (swipeThreshold || 0.5);
+        const hasSwipedAcrossThreshold = Math.abs(state.swipeDistance) > containerWidth * (swipeThreshold || Infinity);
 
         if (!hasSwipedAcrossThreshold) {
           return {
@@ -192,6 +192,7 @@ export const useSlyder = ({ swipeThreshold }: UseSlyderProps) => {
         display: 'flex',
         width: containerWidth * totalSlides,
         transform: `translateX(${trackPosition}px)`,
+        pointerEvents: typeof swipeThreshold === 'number' ? 'initial' : 'none',
         ...props.style,
       },
     }),
