@@ -8,7 +8,7 @@ const BasicSlyder = () => {
     getControlProps,
     getContainerProps,
     getTrackProps, getSlideProps, getPrevButtonProps, getNextButtonProps,
-  } = useSlyder();
+  } = useSlyder({ swipeThreshold: 0.2 });
 
   const slides = [
     {
@@ -43,7 +43,7 @@ const BasicSlyder = () => {
             key={key}
             {...getSlideProps({
               index,
-              style: { background: color },
+              style: { background: color, height: '300px' },
             })}
           >
             {text}

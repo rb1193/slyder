@@ -24,7 +24,7 @@ describe('Slyder', () => {
       getSlideProps,
       getPrevButtonProps,
       getNextButtonProps,
-    } = useSlyder();
+    } = useSlyder({ swipeThreshold: 0.5 });
 
     const slides = [
       {
@@ -232,4 +232,36 @@ describe('Slyder', () => {
 
     expectTrackToHaveMoved(0);
   });
+
+  it('partially moves the slide as the user begins to swipe', () => {
+    render(<Slyder />);
+
+    const track = screen.getByTestId('slyder-track')
+
+    fireEvent.pointerDown(track, { isPrimary: true, pageX: containerWidth });
+
+    fireEvent.pointerMove(track, {
+      pageX: containerWidth / 4,
+      isPrimary: true,
+    });
+
+    expectTrackToHaveMoved(-containerWidth + (containerWidth / 4));
+  })
+
+  it('does not complete slide navigation if the user does not swipe beyond the threshold', () => {
+    render(<Slyder />)
+
+    const track = screen.getByTestId('slyder-track')
+
+    fireEvent.pointerDown(track, { isPrimary: true, pageX: containerWidth });
+
+    fireEvent.pointerMove(track, {
+      pageX: containerWidth - 1,
+      isPrimary: true,
+    });
+
+    fireEvent.pointerUp(track, { isPrimary: true, pageX: containerWidth - 1 });
+
+    expectTrackToHaveMoved(0)
+  })
 });
