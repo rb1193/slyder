@@ -110,7 +110,7 @@ export const useSlyder = () => {
         };
       case SlyderActionType.POINTER_UP:
         if (state.swipingFrom === undefined) return state;
-        const hasSwipedAcrossThreshold = Math.abs(swipeDistance) > containerWidth / 2;
+        const hasSwipedAcrossThreshold = Math.abs(state.swipeDistance) > containerWidth / 2;
 
         if (!hasSwipedAcrossThreshold) {
           return {
@@ -119,7 +119,7 @@ export const useSlyder = () => {
           }
         }
 
-        const swipeDirection = state.swipeDistance >= 0 ? SwipeDirection.NEXT : SwipeDirection.PREV;
+        const swipeDirection = state.swipeDistance >= 0 ? SwipeDirection.PREV : SwipeDirection.NEXT;
         const newSlideIndexOffset = swipeDirection === SwipeDirection.NEXT ? 1 : -1;
         
         return {
@@ -196,7 +196,7 @@ export const useSlyder = () => {
       type: 'button' as 'button',
       'aria-label': 'previous',
       onClick: () => {
-        dispatch({ type: SlyderActionType.NEXT });
+        dispatch({ type: SlyderActionType.PREVIOUS });
       },
     }),
     getNextButtonProps: <ExtraProps>(props: HTMLProps<HTMLButtonElement> & ExtraProps) => ({
@@ -204,7 +204,7 @@ export const useSlyder = () => {
       type: 'button' as 'button',
       'aria-label': 'next',
       onClick: () => {
-        dispatch({ type: SlyderActionType.PREVIOUS })
+        dispatch({ type: SlyderActionType.NEXT })
       },
     }),
     getSlideProps: <ExtraProps>({ index, ...props }: {

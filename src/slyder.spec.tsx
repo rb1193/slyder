@@ -86,6 +86,32 @@ describe('Slyder', () => {
     userEvent.click(screen.getByRole('button', { name: `Go to slide ${slideIndex + 1} of 3` }));
   };
 
+  const swipeLeft = () => {
+    const track = screen.getByTestId('slyder-track')
+
+    fireEvent.pointerDown(track, { isPrimary: true, pageX: containerWidth });
+
+    fireEvent.pointerMove(track, {
+      pageX: containerWidth / 2 - 1,
+      isPrimary: true,
+    });
+
+    fireEvent.pointerUp(track, { isPrimary: true, pageX: containerWidth / 2 - 1 });
+  }
+
+  const swipeRight = () => {
+    const track = screen.getByTestId('slyder-track')
+
+    fireEvent.pointerDown(track, { isPrimary: true, pageX: 0 });
+
+    fireEvent.pointerMove(track, {
+      pageX: containerWidth / 2 + 1,
+      isPrimary: true,
+    });
+
+    fireEvent.pointerUp(track, { isPrimary: true, pageX: containerWidth / 2 + 1 });
+  }
+
   const getAllSlides = () => [
     screen.getByText('One'),
     screen.getByText('Two'),
@@ -190,14 +216,20 @@ describe('Slyder', () => {
   it('can be navigated by swiping using a pointer', () => {
     render(<Slyder />);
 
-    fireEvent.pointerDown(screen.getByText('One'));
-
-    fireEvent.pointerMove(screen.getByText('One'), {
-      pageX: containerWidth / 2 + 1,
-    });
-
-    fireEvent.pointerUp(screen.getByText('One'));
+    swipeLeft()
 
     expectTrackToHaveMoved(-containerWidth);
+
+    swipeLeft()
+
+    expectTrackToHaveMoved(-containerWidth * 2)
+
+    swipeRight()
+
+    expectTrackToHaveMoved(-containerWidth);
+
+    swipeRight()
+
+    expectTrackToHaveMoved(0);
   });
 });
