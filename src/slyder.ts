@@ -191,7 +191,7 @@ export const useSlyder = ({ swipeThreshold }: UseSlyderProps) => {
         display: 'flex',
         width: containerWidth * totalSlides,
         transform: `translateX(${trackPosition}px)`,
-        pointerEvents: typeof swipeThreshold === 'number' ? 'initial' : 'none',
+        pointerEvents: swipeThreshold === false ? 'none' : null,
         ...props.style,
       },
     }),
