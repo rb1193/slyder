@@ -1,4 +1,3 @@
-import { type } from '@testing-library/user-event/dist/type';
 import {
   HTMLProps, useEffect, useReducer, useRef, useState,
 } from 'react';
