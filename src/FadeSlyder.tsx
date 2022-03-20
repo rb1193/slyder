@@ -6,7 +6,7 @@ const FadeSlyder = () => {
   const {
     getSlyder,
     getContainerProps, getTrackProps, getSlideProps, getPrevButtonProps, getNextButtonProps,
-  } = useSlyder();
+  } = useSlyder({ swipeThreshold: false });
 
   const slides = [
     {
@@ -44,7 +44,7 @@ const FadeSlyder = () => {
             key={key}
             {...getSlideProps({
               index,
-              style: { background: color },
+              style: { background: color, height: '300px' },
               ...getSlideAnimationProps(index),
             })}
           >

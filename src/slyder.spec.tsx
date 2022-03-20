@@ -1,8 +1,8 @@
 import React, { useLayoutEffect, ComponentPropsWithoutRef } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSetContainerWidthEffect } from './dom-effects';
-import { useSlyder } from './slyder';
+import { useSlyder, UseSlyderProps } from './slyder';
 
 jest.mock('./dom-effects');
 
@@ -16,7 +16,7 @@ describe('Slyder', () => {
     }, []);
   });
 
-  const Slyder = () => {
+  const Slyder = ({ config }: { config?: Partial<UseSlyderProps> }) => {
     const {
       getControlProps,
       getContainerProps,
@@ -24,7 +24,7 @@ describe('Slyder', () => {
       getSlideProps,
       getPrevButtonProps,
       getNextButtonProps,
-    } = useSlyder();
+    } = useSlyder({ swipeThreshold: 0.5, ...config });
 
     const slides = [
       {
@@ -85,6 +85,32 @@ describe('Slyder', () => {
   const triggerGoTo = (slideIndex: number) => {
     userEvent.click(screen.getByRole('button', { name: `Go to slide ${slideIndex + 1} of 3` }));
   };
+
+  const swipeLeft = () => {
+    const track = screen.getByTestId('slyder-track')
+
+    fireEvent.pointerDown(track, { isPrimary: true, pageX: containerWidth });
+
+    fireEvent.pointerMove(track, {
+      pageX: containerWidth / 2 - 1,
+      isPrimary: true,
+    });
+
+    fireEvent.pointerUp(track, { isPrimary: true, pageX: containerWidth / 2 - 1 });
+  }
+
+  const swipeRight = () => {
+    const track = screen.getByTestId('slyder-track')
+
+    fireEvent.pointerDown(track, { isPrimary: true, pageX: 0 });
+
+    fireEvent.pointerMove(track, {
+      pageX: containerWidth / 2 + 1,
+      isPrimary: true,
+    });
+
+    fireEvent.pointerUp(track, { isPrimary: true, pageX: containerWidth / 2 + 1 });
+  }
 
   const getAllSlides = () => [
     screen.getByText('One'),
@@ -186,4 +212,64 @@ describe('Slyder', () => {
     expect(screen.getByRole('button', { name: 'Go to slide 1 of 3' })).not.toBeDisabled();
     expect(screen.getByRole('button', { name: 'Go to slide 3 of 3' })).toBeDisabled();
   });
+
+  it('can be navigated by swiping using a pointer', () => {
+    render(<Slyder />);
+
+    swipeLeft()
+
+    expectTrackToHaveMoved(-containerWidth);
+
+    swipeLeft()
+
+    expectTrackToHaveMoved(-containerWidth * 2)
+
+    swipeRight()
+
+    expectTrackToHaveMoved(-containerWidth);
+
+    swipeRight()
+
+    expectTrackToHaveMoved(0);
+  });
+
+  it('cannot be navigated by swiping using a pointer if the swipe threshold value is set to false', () => {
+    render(<Slyder config={{ swipeThreshold: false }}/>);
+
+    swipeLeft()
+
+    expectTrackToHaveMoved(0);
+  });
+
+  it('partially moves the slide as the user begins to swipe', () => {
+    render(<Slyder />);
+
+    const track = screen.getByTestId('slyder-track')
+
+    fireEvent.pointerDown(track, { isPrimary: true, pageX: containerWidth });
+
+    fireEvent.pointerMove(track, {
+      pageX: containerWidth / 4,
+      isPrimary: true,
+    });
+
+    expectTrackToHaveMoved(-containerWidth + (containerWidth / 4));
+  })
+
+  it('does not complete slide navigation if the user does not swipe beyond the threshold', () => {
+    render(<Slyder config={{ swipeThreshold: 0.5 }} />)
+
+    const track = screen.getByTestId('slyder-track')
+
+    fireEvent.pointerDown(track, { isPrimary: true, pageX: containerWidth });
+
+    fireEvent.pointerMove(track, {
+      pageX: containerWidth - 1,
+      isPrimary: true,
+    });
+
+    fireEvent.pointerUp(track, { isPrimary: true, pageX: containerWidth - 1 });
+
+    expectTrackToHaveMoved(0)
+  })
 });

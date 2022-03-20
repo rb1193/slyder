@@ -25,9 +25,11 @@
     "storybook"
   ],
   "rules": {
+    "consistent-return": "off",
     "import/prefer-default-export": "off",
     "import/extensions": "off",
     "import/no-extraneous-dependencies": "off",
+    "max-len": ["warning", { "code": 100 }],
     "react/function-component-definition": "off",
     "react/jsx-filename-extension": "off",
     "react/jsx-props-no-spreading": "off",
