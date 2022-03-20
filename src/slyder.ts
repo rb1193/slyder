@@ -68,10 +68,11 @@ export enum SwipeDirection {
 }
 
 export interface UseSlyderProps {
+  infinite: boolean,
   swipeThreshold: number|false,
 }
 
-export const useSlyder = ({ swipeThreshold }: UseSlyderProps) => {
+export const useSlyder = ({ infinite, swipeThreshold }: UseSlyderProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLUListElement>(null);
 
@@ -80,12 +81,21 @@ export const useSlyder = ({ swipeThreshold }: UseSlyderProps) => {
   const totalSlides = trackRef.current?.children.length ?? 1;
 
   const [{ swipingFrom, swipeDistance, visibleSlideIndex }, dispatch] = useSlyderReducer({
+    infinite,
     totalSlides,
     containerWidth,
     swipeThreshold,
   });
 
   const trackPosition = (-containerWidth * visibleSlideIndex) + swipeDistance;
+
+  // TODO: figure out how to do this without breaking the total slide count
+  const renderedSlideIndexes = [visibleSlideIndex - 1, visibleSlideIndex, visibleSlideIndex + 1].filter((slideIndex) => {
+    if (infinite) return true;
+    if (slideIndex >= totalSlides) return false;
+    if (slideIndex < 0) return false;
+    return true;
+  }).map(slideIndex => slideIndex % totalSlides)
 
   useSetContainerWidthEffect(containerRef, setContainerWidth);
 
@@ -154,5 +164,6 @@ export const useSlyder = ({ swipeThreshold }: UseSlyderProps) => {
       onClick: () => dispatch({ type: SlyderActionType.GOTO, payload: { index } }),
       ...props,
     }),
+    renderSlides: (callback: (slideIndex: number) => JSX.Element) => renderedSlideIndexes.map(callback),
   };
 };

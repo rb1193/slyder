@@ -4,11 +4,13 @@ import { SlyderState, SlyderAction, SlyderActionType, SwipeDirection } from "./s
 export interface SlyderReducerProps {
   totalSlides: number,
   containerWidth: number,
+  infinite: boolean,
   swipeThreshold: number | false,
 }
 
-export default ({ totalSlides, containerWidth, swipeThreshold }: SlyderReducerProps) => useReducer((state: SlyderState, action: SlyderAction) => {
+export default ({ totalSlides, infinite, containerWidth, swipeThreshold }: SlyderReducerProps) => useReducer((state: SlyderState, action: SlyderAction) => {
   const getSafeVisibleSlideIndex = (newSlideIndex: number) => {
+    if (infinite) return newSlideIndex;
     if (newSlideIndex >= totalSlides) return state.visibleSlideIndex;
     if (newSlideIndex < 0) return state.visibleSlideIndex;
     return newSlideIndex;

@@ -24,7 +24,8 @@ describe('Slyder', () => {
       getSlideProps,
       getPrevButtonProps,
       getNextButtonProps,
-    } = useSlyder({ swipeThreshold: 0.5, ...config });
+      renderSlides,
+    } = useSlyder({ swipeThreshold: 0.5, infinite: false, ...config });
 
     const slides = [
       {
@@ -47,15 +48,15 @@ describe('Slyder', () => {
     return (
       <div {...getContainerProps({ 'data-testid': 'slyder-container' })}>
         <ul {...getTrackProps({ 'data-testid': 'slyder-track' })}>
-          {slides.map(({ key, text, color }, index) => (
+          {renderSlides((slideIndex) => (
             <li
-              key={key}
+              key={slides[slideIndex].key}
               {...getSlideProps({
-                index,
-                style: { background: color },
+                index: slideIndex,
+                style: { background: slides[slideIndex].color },
               })}
             >
-              {text}
+              {slides[slideIndex].text}
             </li>
           ))}
         </ul>
@@ -271,5 +272,15 @@ describe('Slyder', () => {
     fireEvent.pointerUp(track, { isPrimary: true, pageX: containerWidth - 1 });
 
     expectTrackToHaveMoved(0)
+  })
+
+  it('will allow infinite sliding when the infinite option is true', () => {
+    render(<Slyder config={{ infinite: true }} />)
+
+    triggerPrevious()
+
+    expectTrackToHaveMoved(containerWidth)
+
+    expect(screen.getByRole('button', { name: 'Go to slide 3 of 3' })).toBeDisabled();
   })
 });
